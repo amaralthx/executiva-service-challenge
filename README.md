@@ -29,16 +29,17 @@ cd backend
 npm install
 cp .env.example .env
 npm run dev
-Backend rodando em: http://localhost:5000
 ```
+Backend rodando em: http://localhost:5000
 
 ### Frontend
 ```markdown
 cd frontend
 npm install
 npm run dev
-Frontend rodando em: http://localhost:3000
 ```
+Frontend rodando em: http://localhost:3000
+
 
 Funcionalidades Implementadas
 Backend
@@ -85,7 +86,7 @@ DELETE /tasks/:id - Excluir tarefa
 Teste Rápido
 Execute backend e frontend
 
-Acesse http://localhost:5173
+Acesse http://localhost:3000
 
 Cadastre um usuário ou faça login
 
