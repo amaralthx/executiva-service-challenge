@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Container, Row, Col, Card, Form, Button, Badge, Alert } from "react-bootstrap";
 import api from "../api/axios";
 import { getAuth, logout } from "../utils/auth";
 
@@ -16,6 +17,8 @@ export default function Tasks() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const user = getAuth().user;
 
@@ -29,18 +32,21 @@ export default function Tasks() {
       setTasks(res.data);
     } catch (error) {
       console.error("Erro ao carregar tarefas:", error);
-      alert("Erro ao carregar tarefas. Verifique o console.");
+      setErrorMessage("Erro ao carregar tarefas. Tente novamente.");
     }
   };
 
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
-      alert("Título é obrigatório!");
+      setErrorMessage("Título é obrigatório!");
       return;
     }
 
     setLoading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+
     try {
       await api.post("/tasks", {
         title: title.trim(),
@@ -49,11 +55,12 @@ export default function Tasks() {
       setTitle("");
       setDescription("");
       setShowForm(false);
-      await loadTasks(); // Recarrega a lista
-      alert("Tarefa criada com sucesso!");
+      await loadTasks();
+      setSuccessMessage("Tarefa criada com sucesso!");
+      setTimeout(() => setSuccessMessage(""), 3000);
     } catch (error: any) {
       console.error("Erro ao criar tarefa:", error);
-      alert(error.response?.data?.message || "Erro ao criar tarefa");
+      setErrorMessage(error.response?.data?.message || "Erro ao criar tarefa");
     } finally {
       setLoading(false);
     }
@@ -65,10 +72,11 @@ export default function Tasks() {
     try {
       await api.delete(`/tasks/${id}`);
       await loadTasks();
-      alert("Tarefa excluída com sucesso!");
+      setSuccessMessage("Tarefa excluída com sucesso!");
+      setTimeout(() => setSuccessMessage(""), 3000);
     } catch (error: any) {
       console.error("Erro ao excluir tarefa:", error);
-      alert(error.response?.data?.message || "Erro ao excluir tarefa");
+      setErrorMessage(error.response?.data?.message || "Erro ao excluir tarefa");
     }
   };
 
@@ -76,153 +84,189 @@ export default function Tasks() {
     try {
       await api.put(`/tasks/${id}`, { status: newStatus });
       await loadTasks();
+      setSuccessMessage("Status atualizado com sucesso!");
+      setTimeout(() => setSuccessMessage(""), 2000);
     } catch (error: any) {
       console.error("Erro ao atualizar status:", error);
-      alert(error.response?.data?.message || "Erro ao atualizar tarefa");
+      setErrorMessage(error.response?.data?.message || "Erro ao atualizar tarefa");
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'pendente': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'em andamento': return 'bg-blue-100 text-blue-800 border-blue-300';
-      case 'concluída': return 'bg-green-100 text-green-800 border-green-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+      case 'pendente':
+        return <Badge bg="warning" className="px-3 py-2" style={{fontSize: '0.9rem'}}>⏳ Pendente</Badge>;
+      case 'em andamento':
+        return <Badge bg="info" className="px-3 py-2" style={{fontSize: '0.9rem'}}>⚡ Em Andamento</Badge>;
+      case 'concluída':
+        return <Badge bg="success" className="px-3 py-2" style={{fontSize: '0.9rem'}}>✅ Concluída</Badge>;
+      default:
+        return <Badge bg="secondary" className="px-3 py-2" style={{fontSize: '0.9rem'}}>{status}</Badge>;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800">Minhas Tarefas</h1>
-              <p className="text-gray-600 mt-1">Olá, {user?.name || 'Usuário'}!</p>
-            </div>
-            <button
-              onClick={() => {
-                logout();
-                window.location.href = '/signin';
-              }}
-              className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-colors font-medium"
-            >
-              Sair
-            </button>
-          </div>
-        </div>
-
-        {/* New Task Button */}
-        <div className="mb-6">
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${showForm
-                ? 'bg-gray-500 hover:bg-gray-600 text-white'
-                : 'bg-blue-500 hover:bg-blue-600 text-white'
-              }`}
-          >
-            {showForm ? 'Cancelar' : '+ Nova Tarefa'}
-          </button>
-        </div>
-
-        {/* Task Form */}
-        {showForm && (
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-2">Nova Tarefa</h2>
-            <form onSubmit={handleCreateTask}>
-              <div className="grid gap-4">
-                <div>
-                  <label className="block text-gray-700 text-sm font-medium mb-2">
-                    Título *
-                  </label>
-                  <input
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Digite o título da tarefa"
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                    disabled={loading}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-700 text-sm font-medium mb-2">
-                    Descrição
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Digite a descrição da tarefa (opcional)"
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    rows={4}
-                    disabled={loading}
-                  />
-                </div>
-
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+    <div className="gradient-bg" style={{
+      background: 'linear-gradient(135deg, #3b82f6, #6366f1, #8b5cf6)',
+      minHeight: '100vh',
+      paddingTop: '2rem',
+      paddingBottom: '2rem'
+    }}>
+      <Container>
+        <Row className="justify-content-center">
+          <Col xs={12} lg={10} xl={9}>
+            <Card className="auth-card mb-4">
+              <Card.Body className="p-4 p-md-5">
+                <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                  <div>
+                    <h1 className="h2 mb-2 fw-bold text-gradient">Minhas Tarefas</h1>
+                    <p className="text-muted mb-0">Olá, <strong>{user?.name || 'Usuário'}</strong>!</p>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      logout();
+                      window.location.href = '/signin';
+                    }}
+                    className="btn-gradient-warning"
+                    size="lg"
                   >
-                    {loading ? 'Criando...' : 'Criar Tarefa'}
-                  </button>
+                    Sair
+                  </Button>
                 </div>
-              </div>
-            </form>
-          </div>
-        )}
+              </Card.Body>
+            </Card>
 
-        {/* Tasks List */}
-        <div className="space-y-4">
-          {tasks.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-              <p className="text-gray-500 text-lg">Nenhuma tarefa encontrada.</p>
-              <p className="text-gray-400 mt-2">Crie sua primeira tarefa clicando em "Nova Tarefa"</p>
+            {successMessage && (
+              <Alert variant="success" dismissible onClose={() => setSuccessMessage("")} className="mb-4">
+                {successMessage}
+              </Alert>
+            )}
+
+            {errorMessage && (
+              <Alert variant="danger" dismissible onClose={() => setErrorMessage("")} className="mb-4">
+                {errorMessage}
+              </Alert>
+            )}
+
+            <div className="mb-4">
+              <Button
+                onClick={() => setShowForm(!showForm)}
+                className={showForm ? "btn-gradient-warning" : "btn-gradient-success"}
+                size="lg"
+              >
+                {showForm ? 'Cancelar' : '+ Nova Tarefa'}
+              </Button>
             </div>
-          ) : (
-            tasks.map(task => (
-              <div key={task._id} className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg text-gray-800 mb-2">{task.title}</h3>
-                    {task.description && (
-                      <p className="text-gray-600 mb-3">{task.description}</p>
-                    )}
-                    <div className="flex flex-wrap gap-2 items-center">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(task.status)}`}>
-                        {task.status}
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        Criada em: {new Date(task.data_criacao).toLocaleDateString('pt-BR')}
-                      </span>
-                    </div>
-                  </div>
 
-                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                    <select
-                      value={task.status}
-                      onChange={(e) => handleUpdateStatus(task._id, e.target.value as Task['status'])}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                    >
-                      <option value="pendente">Pendente</option>
-                      <option value="em andamento">Em Andamento</option>
-                      <option value="concluída">Concluída</option>
-                    </select>
-                    <button
-                      onClick={() => handleDeleteTask(task._id)}
-                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium"
-                    >
-                      Excluir
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+            {showForm && (
+              <Card className="auth-card mb-4">
+                <Card.Body className="p-4 p-md-5">
+                  <h2 className="h4 mb-4 fw-bold text-gradient">Nova Tarefa</h2>
+
+                  <Form onSubmit={handleCreateTask}>
+                    <Form.Group className="mb-3" controlId="taskTitle">
+                      <Form.Label>Título *</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Título da tarefa"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        required
+                        size="lg"
+                        disabled={loading}
+                      />
+                    </Form.Group>
+
+                    <Form.Group className="mb-4" controlId="taskDescription">
+                      <Form.Label>Descrição</Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        rows={3}
+                        placeholder="Descrição da tarefa (opcional)"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        size="lg"
+                        disabled={loading}
+                      />
+                    </Form.Group>
+
+                    <div className="d-flex gap-2 justify-content-end">
+                      <Button
+                        type="submit"
+                        className="btn-gradient-primary"
+                        size="lg"
+                        disabled={loading}
+                      >
+                        {loading ? 'Criando...' : 'Criar'}
+                      </Button>
+                    </div>
+                  </Form>
+                </Card.Body>
+              </Card>
+            )}
+
+            <div>
+              {tasks.length === 0 ? (
+                <Card className="auth-card">
+                  <Card.Body className="p-5 text-center">
+                    <div className="icon-box mx-auto" style={{background: 'transparent', boxShadow: 'none'}}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="#6366f1" viewBox="0 0 16 16">
+                        <path d="M9.5 0a.5.5 0 0 1 .5.5.5.5 0 0 0 .5.5.5.5 0 0 1 .5.5V2a.5.5 0 0 1-.5.5h-5A.5.5 0 0 1 5 2v-.5a.5.5 0 0 1 .5-.5.5.5 0 0 0 .5-.5.5.5 0 0 1 .5-.5h3Z"/>
+                        <path d="M3 2.5a.5.5 0 0 1 .5-.5H4a.5.5 0 0 0 0-1h-.5A1.5 1.5 0 0 0 2 2.5v12A1.5 1.5 0 0 0 3.5 16h9a1.5 1.5 0 0 0 1.5-1.5v-12A1.5 1.5 0 0 0 12.5 1H12a.5.5 0 0 0 0 1h.5a.5.5 0 0 1 .5.5v12a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5v-12Z"/>
+                      </svg>
+                    </div>
+                    <h3 className="h4 mb-2 fw-bold text-muted">Nenhuma tarefa</h3>
+                    <p className="text-muted mb-0">Crie sua primeira tarefa</p>
+                  </Card.Body>
+                </Card>
+              ) : (
+                <Row className="g-4">
+                  {tasks.map(task => (
+                    <Col xs={12} key={task._id}>
+                      <Card className="auth-card" style={{borderLeft: '4px solid #6366f1'}}>
+                        <Card.Body className="p-4">
+                          <div className="d-flex flex-column flex-lg-row justify-content-between gap-3">
+                            <div className="flex-grow-1">
+                              <h3 className="h5 fw-bold mb-2">{task.title}</h3>
+                              {task.description && (
+                                <p className="text-muted mb-3">{task.description}</p>
+                              )}
+                              <div className="d-flex flex-wrap gap-2 align-items-center">
+                                {getStatusBadge(task.status)}
+                                <small className="text-muted">
+                                  {new Date(task.data_criacao).toLocaleDateString('pt-BR')}
+                                </small>
+                              </div>
+                            </div>
+
+                            <div className="d-flex flex-column gap-2" style={{minWidth: '200px'}}>
+                              <Form.Select
+                                value={task.status}
+                                onChange={(e) => handleUpdateStatus(task._id, e.target.value as Task['status'])}
+                                size="lg"
+                              >
+                                <option value="pendente">⏳ Pendente</option>
+                                <option value="em andamento">⚡ Em Andamento</option>
+                                <option value="concluída">✅ Concluída</option>
+                              </Form.Select>
+                              <Button
+                                onClick={() => handleDeleteTask(task._id)}
+                                className="btn-gradient-warning"
+                              >
+                                Excluir
+                              </Button>
+                            </div>
+                          </div>
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+              )}
+            </div>
+          </Col>
+        </Row>
+      </Container>
     </div>
   );
 }
