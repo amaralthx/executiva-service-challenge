@@ -1,75 +1,107 @@
 import { Request, Response } from "express";
 import Task from "../models/task.models";
 
-export const createTask = async (req: Request, res: Response) => {
+interface AuthRequest extends Request {
+  userId?: string;
+}
+
+export const createTask = async (req: AuthRequest, res: Response) => {
   try {
-    const { titulo, descricao, status, data_conclusao } = req.body;
-    const userId = (req as any).user.id;
+    console.log("Dados recebidos:", req.body);
+    console.log("UserID:", req.userId);
+
+    const { title, description } = req.body;
     
-    // Validação básica
-    if (!titulo) {
+    if (!title || !title.trim()) {
       return res.status(400).json({ message: "Título é obrigatório" });
     }
 
-    const newTask = await Task.create({ 
-      titulo, 
-      descricao, 
-      status, 
-      data_conclusao, 
-      userId 
-    });
-    res.status(201).json(newTask);
-  } catch (err) {
-    res.status(400).json({ message: "Erro ao criar tarefa", error: err });
-  }
-};
-
-export const getTasks = async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user.id;
-    const tasks = await Task.find({ userId });
-    res.json(tasks);
-  } catch (err) {
-    res.status(500).json({ message: "Erro ao buscar tarefas", error: err });
-  }
-};
-
-export const updateTask = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const userId = (req as any).user.id;
-    
-    // Verificar se a tarefa pertence ao usuário
-    const task = await Task.findOne({ _id: id, userId });
-    if (!task) {
-      return res.status(404).json({ message: "Tarefa não encontrada" });
+    // Verificar se o userId existe
+    if (!req.userId) {
+      return res.status(401).json({ message: "Usuário não autenticado" });
     }
 
-    const updatedTask = await Task.findByIdAndUpdate(
-      id, 
-      req.body, 
+    const task = new Task({
+      title: title.trim(),
+      description: description?.trim() || "",
+      user: req.userId
+    });
+
+    const savedTask = await task.save();
+    console.log("Tarefa salva:", savedTask);
+    
+    res.status(201).json(savedTask);
+  } catch (error: any) {
+    console.error("Erro detalhado ao criar tarefa:", error);
+    
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ 
+        message: "Dados inválidos", 
+        errors: error.errors 
+      });
+    }
+    
+    if (error.code === 11000) {
+      return res.status(400).json({ 
+        message: "Tarefa duplicada" 
+      });
+    }
+    
+    res.status(500).json({ 
+      message: "Erro interno do servidor",
+      error: error.message 
+    });
+  }
+};
+
+export const getTasks = async (req: AuthRequest, res: Response) => {
+  try {
+    const tasks = await Task.find({ user: req.userId });
+    res.json(tasks);
+  } catch (error) {
+    console.error("Erro ao buscar tarefas:", error);
+    res.status(500).json({ message: "Erro ao buscar tarefas" });
+  }
+};
+
+export const updateTask = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { title, description, status } = req.body;
+
+    const task = await Task.findOneAndUpdate(
+      { _id: id, user: req.userId },
+      { title, description, status },
       { new: true }
     );
-    res.json(updatedTask);
-  } catch (err) {
-    res.status(400).json({ message: "Erro ao atualizar tarefa", error: err });
-  }
-};
 
-export const deleteTask = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const userId = (req as any).user.id;
-    
-    // Verificar se a tarefa pertence ao usuário
-    const task = await Task.findOne({ _id: id, userId });
     if (!task) {
       return res.status(404).json({ message: "Tarefa não encontrada" });
     }
 
-    await Task.findByIdAndDelete(id);
-    res.json({ message: "Tarefa removida com sucesso" });
-  } catch (err) {
-    res.status(400).json({ message: "Erro ao excluir tarefa", error: err });
+    res.json(task);
+  } catch (error) {
+    console.error("Erro ao atualizar tarefa:", error);
+    res.status(500).json({ message: "Erro ao atualizar tarefa" });
+  }
+};
+
+export const deleteTask = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const task = await Task.findOneAndDelete({ 
+      _id: id, 
+      user: req.userId 
+    });
+
+    if (!task) {
+      return res.status(404).json({ message: "Tarefa não encontrada" });
+    }
+
+    res.json({ message: "Tarefa excluída com sucesso" });
+  } catch (error) {
+    console.error("Erro ao excluir tarefa:", error);
+    res.status(500).json({ message: "Erro ao excluir tarefa" });
   }
 };

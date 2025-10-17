@@ -1,9 +1,10 @@
-import express from "express";
+import { Router } from "express";
 import { createTask, getTasks, updateTask, deleteTask } from "../controllers/task.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 
-const router = express.Router();
+const router = Router();
 
+// Todas as rotas de tasks precisam de autenticação
 router.use(authMiddleware);
 
 router.post("/", createTask);
