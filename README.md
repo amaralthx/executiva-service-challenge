@@ -16,6 +16,7 @@ Sistema completo de gerenciamento de tarefas com autenticação de usuários.
 - TailwindCSS para estilização
 - Axios para requisições HTTP
 - React Router para navegação
+- Bootstrap
 
 ## Como Executar o Projeto
 
@@ -61,7 +62,7 @@ Frontend rodando em: http://localhost:3000
 - Dashboard de tarefas após login
 - CRUD completo de tarefas
 - Alteração de status (pendente, em andamento, concluída)
-- Design responsivo com TailwindCSS
+- Design responsivo com Bootstrap
 - Armazenamento de token JWT no localStorage
 
 ## Estrutura da API
@@ -76,8 +77,13 @@ Frontend rodando em: http://localhost:3000
 - PUT /tasks/:id - Atualizar tarefa
 - DELETE /tasks/:id - Excluir tarefa
 
+## Testes da API
+
+A API foi testada manualmente no Postman, cobrindo todos os endpoints de autenticação e tarefas (CRUD).
+O arquivo de collection JSON com todas as requisições está disponível no repositório
+
 ## Teste Rápido
 1. Execute backend e frontend
 2. Acesse http://localhost:3000
 3. Cadastre um usuário ou faça login
-4. Comece a gerenciar suas tarefas" 
+4. Comece a gerenciar suas tarefas
