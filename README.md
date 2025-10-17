@@ -23,6 +23,12 @@ Sistema completo de gerenciamento de tarefas com autenticação de usuários.
 - Node.js 16+
 - MongoDB (local ou Atlas)
 
+## Clone o repositório
+```bash
+git clone https://github.com/amaralthx/executiva-service-challenge
+cd executiva-service-challenge
+```
+
 ### Backend
 ```markdown
 cd backend
