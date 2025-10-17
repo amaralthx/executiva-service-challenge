@@ -24,19 +24,21 @@ Sistema completo de gerenciamento de tarefas com autenticação de usuários.
 - MongoDB (local ou Atlas)
 
 ### Backend
-```bash
+```markdown
 cd backend
 npm install
 cp .env.example .env
 npm run dev
 Backend rodando em: http://localhost:5000
+```
 
-Frontend
-bash
+### Frontend
+```markdown
 cd frontend
 npm install
 npm run dev
-Frontend rodando em: http://localhost:5173
+Frontend rodando em: http://localhost:3000
+```
 
 Funcionalidades Implementadas
 Backend
