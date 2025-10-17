@@ -1,0 +1,175 @@
+{
+	"info": {
+		"_postman_id": "34d0ffe5-8a9e-4ec4-99c6-1bd14b1ff29e",
+		"name": "Executiva_Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44572612"
+	},
+	"item": [
+		{
+			"name": "USUÁRIO CRIADO - 201 CREATED",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"nome\": \"Thaís\",\r\n    \"email\": \"thaisamaralcord@test.com\",\r\n    \"senha\": \"123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/auth/signup",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"auth",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LOGIN REALIZADO TOKEN - 200 OK",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"nome\": \"Thaís\",\r\n    \"email\": \"thaisamaralcord@test.com\",\r\n    \"senha\": \"123456\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/auth/signin",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"auth",
+						"signin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TAREFA CRIADA - 201 CREATED",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"titulo\": \"Minha primeira tarefa\",\r\n  \"descricao\": \"Descrição da tarefa\",\r\n  \"status\": \"pendente\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/tasks?",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"tasks"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LISTAGEM TASKS - 200 OK",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "ATUALIZAR TASK - 200 OK",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjE3OWI2Njk3ZTQ4OTRlNGJlOWJiNiIsImlhdCI6MTc2MDY1NjE2MiwiZXhwIjoxNzYwNzQyNTYyfQ.n45sLer5bu7ZAOOlAXJ9FjmKXwZK7g_CmpxWi0ZSpUk",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/tasks/68f17b75697e4894e4be9bb9",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"tasks",
+						"68f17b75697e4894e4be9bb9"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETAR TASK - 200 OK",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ZjE3OWI2Njk3ZTQ4OTRlNGJlOWJiNiIsImlhdCI6MTc2MDY1NjE2MiwiZXhwIjoxNzYwNzQyNTYyfQ.n45sLer5bu7ZAOOlAXJ9FjmKXwZK7g_CmpxWi0ZSpUk",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/tasks/68f17b75697e4894e4be9bb9",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"tasks",
+						"68f17b75697e4894e4be9bb9"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
