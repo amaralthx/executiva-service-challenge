@@ -40,54 +40,38 @@ npm run dev
 ```
 Frontend rodando em: http://localhost:3000
 
+## Funcionalidades Implementadas
 
-Funcionalidades Implementadas
-Backend
-CRUD completo de tarefas
+### Backend
+- CRUD completo de tarefas
+- Autenticação JWT (signup/signin)
+- Middleware de autenticação
+- Campos: id, título, descricao, status, data_criacao
+- MongoDB com Mongoose
+- Validações e tratamento de erros
 
-Autenticação JWT (signup/signin)
+### Frontend
+- Telas de login e cadastro
+- Dashboard de tarefas após login
+- CRUD completo de tarefas
+- Alteração de status (pendente, em andamento, concluída)
+- Design responsivo com TailwindCSS
+- Armazenamento de token JWT no localStorage
 
-Middleware de autenticação
+## Estrutura da API
 
-Campos: id, titulo, descricao, status, data_criacao
+### Autenticação
+- POST /auth/signup - Cadastro de usuário
+- POST /auth/signin - Login de usuário
 
-MongoDB com Mongoose
+### Tarefas (Requer Autenticação)
+- GET /tasks - Listar todas as tarefas do usuário
+- POST /tasks - Criar nova tarefa
+- PUT /tasks/:id - Atualizar tarefa
+- DELETE /tasks/:id - Excluir tarefa
 
-Validações e tratamento de erros
-
-Frontend
-Telas de login e cadastro
-
-Dashboard de tarefas após login
-
-CRUD completo de tarefas
-
-Alteração de status (pendente, em andamento, concluída)
-
-Design responsivo com TailwindCSS
-
-Armazenamento de token JWT no localStorage
-
-Estrutura da API
-Autenticação
-POST /auth/signup - Cadastro de usuário
-
-POST /auth/signin - Login de usuário
-
-Tarefas (Requer Autenticação)
-GET /tasks - Listar todas as tarefas do usuário
-
-POST /tasks - Criar nova tarefa
-
-PUT /tasks/:id - Atualizar tarefa
-
-DELETE /tasks/:id - Excluir tarefa
-
-Teste Rápido
-Execute backend e frontend
-
-Acesse http://localhost:3000
-
-Cadastre um usuário ou faça login
-
-Comece a gerenciar suas tarefas
+## Teste Rápido
+1. Execute backend e frontend
+2. Acesse http://localhost:3000
+3. Cadastre um usuário ou faça login
+4. Comece a gerenciar suas tarefas" 
